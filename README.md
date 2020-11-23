@@ -1,2 +1,1 @@
-# riddle-quiz
-A simple quiz/riddle app with multiple choice answers
+### Boilerplate app structure for Quiz App project
