@@ -87,10 +87,10 @@ const store = {
 function generateIntroHtmlText() {
   return `
   <div class="intro">
-    <h2>Welcome to your Riddle Me this</h2>
+    <h2>Welcome to Riddle Me This</h2>
     <form class="intro-form">
-      <label for="get-started">Lets Get Started</label>
-      <button type="submit">Lets Get Started</button>
+      <label for="get-started">Shall we get started?</label>
+      <button type="submit">Lets do it</button>
     </form>
   </div>
   `;
@@ -102,12 +102,16 @@ function generateRiddle() {
   // console.log(currentQuestion);
   return `
   <div class="question-container">
-    <div class="current-question">Question ${store.currentQuestion + 1} / ${store.questions.length}</div>
-    <div class="correct-question">You have ${store.score} out of ${store.questions.length} correct so far</div>
-    <div class="promt-question">${currentQuestion.question}<div>
-    <form class="answers-form">
-      ${generateAnswers(currentQuestion)}
-    </form>
+    <div class="current-container">
+      <div class="current-question-num">Question ${store.currentQuestion + 1} / ${store.questions.length}</div>
+      <div class="question-score-seperator"> : </div>
+      <div class="current-score"> Score - ${store.score} out of ${store.questions.length} </div>
+    </div>
+    <div class="promt-question">
+      <div class="current-question">${currentQuestion.question}</div>
+      <form class="answers-form">
+        ${generateAnswers(currentQuestion)}
+      </form>
   </div>
   `;
 }
@@ -121,8 +125,8 @@ function generateAnswers(currentQuesion) {
 
 function generateCorrectResult() {
   return  `
-  <div class="answer">The answer was ${store.questions[store.currentQuestion].correctAnswer}</div>
-  <form class="answer-form">
+  <div class="answer">Correct! The answer was <strong>${store.questions[store.currentQuestion].correctAnswer}</strong></div>
+  <form class="answers-form">
       <button class="next-button">Next</button>
   </form>
   `;
@@ -130,8 +134,8 @@ function generateCorrectResult() {
 
 function generateIncorrectResult() {
   return  `
-  <div class="answer">Sorry the correct answer was ${store.questions[store.currentQuestion].correctAnswer}</div>
-  <form class="answer-form">
+  <div class="answer">Sorry the correct answer was <strong>${store.questions[store.currentQuestion].correctAnswer}</strong></div>
+  <form class="answers-form">
       <button class="next-button">Next</button>
   </form>
   `;
@@ -172,7 +176,7 @@ function renderInccorectResult() {
 }
 
 function renderFinalresults() {
-  $('main').html(generateFinalResults());
+  return $('main').html(generateFinalResults());
 }
 
 // function currentQuestion() {
@@ -195,7 +199,7 @@ function renderQuiz() {
   if (store.quizStarted === false) {
     renderIntro();
     // console.log(store.quizStarted + " - Quiz is initally false, in renderQuiz()");
-  } else if (store.quizStarted === true) {
+  } else if (store.quizStarted === true && store.questionNumber + 1 <= store.questions.length) {
     // console.log(store.quizStarted + " - The Button has been pressed inside RenderQuiz");
     renderRiddles();
   }
