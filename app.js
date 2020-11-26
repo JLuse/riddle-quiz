@@ -12,7 +12,8 @@ const store = {
         'A Stamp',
         'A Globe'
       ],
-      correctAnswer: 'A Stamp'
+      correctAnswer: 'A Stamp',
+      correctImg: 'images/stamp.jpg'
     },
     {
       question: 'You throw away the outside and cook the inside. Then you eat the outside and throw away the inside. What did you eat?',
@@ -22,7 +23,8 @@ const store = {
         'Banana',
         'Pistachios'
       ],
-      correctAnswer: 'Ear of Corn' // Throw away the husk, cook the kernel, eat the kernel, and throw away the cob
+      correctAnswer: 'Ear of Corn', // Throw away the husk, cook the kernel, eat the kernel, and throw away the cob
+      correctImg: 'images/corn.jpg'
     },
     {
       question: 'I feather and run but am not a bird. I bleed but never lived. What am I?',
@@ -32,7 +34,8 @@ const store = {
         'An Arrow',
         'Machine'
       ],
-      correctAnswer: 'Ink' // Ink can bleed and run, also used on a qwil
+      correctAnswer: 'Ink', // Ink can bleed and run, also used on a qwil
+      correctImg: 'images/ink.jpg'
     },
     {
       question: 'If I have a bee in my hand, what is in my eye?',
@@ -42,7 +45,8 @@ const store = {
         'Beauty',
         'Pistachios'
       ],
-      correctAnswer: 'Beauty' //  (BEAUTY is in the EYE of the bee-holder)
+      correctAnswer: 'Beauty', //  (BEAUTY is in the EYE of the bee-holder)
+      correctImg: 'images/beauty.jpg'
     },
     {
       question: 'You get me when you park in a place off limits. I live in a swamp. I\'m the one who ribbits.',
@@ -52,7 +56,8 @@ const store = {
         'Towed',
         'Flat Tire'
       ],
-      correctAnswer: 'Towed' //  Toad
+      correctAnswer: 'Towed', //  Toad
+      correctImg: 'images/towed.jpg'
     }
   ],
   quizStarted: false,
@@ -79,10 +84,7 @@ const store = {
 /***************************************************/
 /********** TEMPLATE GENERATION FUNCTIONS **********/
 /***************************************************/
-
 // These functions return HTML templates
-
-// An intro function
 
 function generateIntroHtmlText() {
   return `
@@ -103,7 +105,7 @@ function generateRiddle() {
   return `
   <div class="question-container">
     <div class="current-container">
-      <div class="current-question-num">Question ${store.currentQuestion + 1} / ${store.questions.length}</div>
+      <div class="current-question-num">Question ${store.currentQuestion + 1} out of ${store.questions.length}</div>
       <div class="question-score-seperator"> : </div>
       <div class="current-score"> Score - ${store.score} out of ${store.questions.length} </div>
     </div>
@@ -125,7 +127,9 @@ function generateAnswers(currentQuesion) {
 
 function generateCorrectResult() {
   return  `
-  <div class="answer">Correct! The answer was <strong>${store.questions[store.currentQuestion].correctAnswer}</strong></div>
+  <div class="answer">Correct! The answer was: <strong>${store.questions[store.currentQuestion].correctAnswer}</strong>
+  <img src="${store.questions[store.currentQuestion].correctImg}" alt="Image of ${store.questions[store.currentQuestion].correctAnswer}" width="500" height="500">
+  </div>
   <form class="answers-form">
       <button class="next-button">Next</button>
   </form>
@@ -134,7 +138,9 @@ function generateCorrectResult() {
 
 function generateIncorrectResult() {
   return  `
-  <div class="answer">Sorry the correct answer was <strong>${store.questions[store.currentQuestion].correctAnswer}</strong></div>
+  <div class="answer">Sorry! The correct answer was: <strong>${store.questions[store.currentQuestion].correctAnswer}</strong>
+  <img src="${store.questions[store.currentQuestion].correctImg}" alt="Image of ${store.questions[store.currentQuestion].correctAnswer}" width="500" height="500">
+  </div>
   <form class="answers-form">
       <button class="next-button">Next</button>
   </form>
@@ -143,20 +149,18 @@ function generateIncorrectResult() {
 
 function generateFinalResults() {
   return  `
-  <div class="final-results">You ended with ${store.score} out of ${store.questions.length}</div>
+  <div class="final-results">You scored ${store.score} out of ${store.questions.length}</div>
   <form class="answer-form">
       <button class="reset-button">Restart Quiz?</button>
   </form>
   `;
 }
 
-
 /****************************************/
 /********** RENDER FUNCTION(S) **********/
 /****************************************/
 function startQuiz() {
   store.quizStarted = true;
-  // console.log("Inside startQuiz()")
 }
 
 function renderIntro() {
@@ -176,43 +180,23 @@ function renderInccorectResult() {
 }
 
 function renderFinalresults() {
-  return $('main').html(generateFinalResults());
+  $('main').html(generateFinalResults());
 }
-
-// function currentQuestion() {
-//   let questionIndex = store.questionNumber;
-//   let questionObj = store.questions[questionIndex];
-//   return {
-//     questionIndex: questionIndex += 1,
-//     question: questionObj
-//   };
-// }
-
 
 // This function conditionally replaces the contents of the <main> tag based on the state of the store
 function renderQuiz() {
-  if (store.currentQuestion === store.questions.length) {
-    console.log("YOURE AT THE END - TODO: Render results page");
-    renderFinalresults();
-  }
-  // check if quiz is started
-  if (store.quizStarted === false) {
-    renderIntro();
-    // console.log(store.quizStarted + " - Quiz is initally false, in renderQuiz()");
-  } else if (store.quizStarted === true && store.questionNumber + 1 <= store.questions.length) {
-    // console.log(store.quizStarted + " - The Button has been pressed inside RenderQuiz");
+  if (store.quizStarted) {
+    if (store.currentQuestion === store.questions.length) {
+      return renderFinalresults();
+    }
     renderRiddles();
+  } else {
+    renderIntro();
   }
 }
-
-// create a function to find the currentQuestion of the store array
-
-
-
 /*********************************************/
 /********** EVENT HANDLER FUNCTIONS **********/
 /*********************************************/
-
 // These functions handle events (submit, click, etc)
 
 function handleQuizBeginsSubmit() {
@@ -231,11 +215,11 @@ function checkAnswerSubmit() {
     let correctAnswer = store.questions[store.currentQuestion].correctAnswer;
 
     if (correctAnswer === e.currentTarget.innerHTML) {
-      console.log("That is correct!")
+      // console.log("That is correct!")
       store.score++
       renderCorrectResult();
     } else {
-      console.log("WRONG!")
+      // console.log("WRONG!")
       renderInccorectResult();
     }
     console.log(correctAnswer);
@@ -249,14 +233,6 @@ function handleNextQuestonSubmit() {
     renderQuiz();
   })
 }
-
-// function handleIncorrectNextQuestonSubmit() {
-//   $('main').on('click', '.incorrect-next-button', e => {
-//     e.preventDefault();
-//     store.currentQuestion++
-//     renderQuiz();
-//   })
-// }
 
 
 // launch all functions after page loads
