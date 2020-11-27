@@ -65,7 +65,6 @@ const store = {
   score: 0,
   currentQuestion: 0
 };
-
 /**
  * 
  * Technical requirements:
@@ -87,7 +86,8 @@ const store = {
 // These functions return HTML templates
 
 function generateIntroHtmlText() {
-  return `
+  return $('main').html(
+  `
   <div class="intro">
     <h2>Welcome to Riddle Me This</h2>
     <form class="intro-form">
@@ -95,14 +95,15 @@ function generateIntroHtmlText() {
       <button type="submit">Lets do it</button>
     </form>
   </div>
-  `;
+  `
+  )
 }
 
 // A function render all the other quiz pages (include argument)
-function generateRiddle() {
-  let currentQuestion = store.questions[store.currentQuestion]
+function generateRiddle(currentQuestion) {
+  return $('main').html(
   // console.log(currentQuestion);
-  return `
+  `
   <div class="question-container">
     <div class="current-container">
       <div class="current-question-num">Question ${store.currentQuestion + 1} out of ${store.questions.length}</div>
@@ -115,7 +116,8 @@ function generateRiddle() {
         ${generateAnswers(currentQuestion)}
       </form>
   </div>
-  `;
+  `
+  )
 }
 
 function generateAnswers(currentQuesion) {
@@ -163,37 +165,32 @@ function startQuiz() {
   store.quizStarted = true;
 }
 
-function renderIntro() {
-  $('main').html(generateIntroHtmlText)
-}
 
-function renderRiddles() {
-  $('main').html(generateRiddle());
-}
+// NEED TO MAKE A SINGLE RENDER FUNCTION
+function render() {
+  let currentQuestion = store.questions[store.currentQuestion]
 
-function renderCorrectResult() {
-  $('main').html(generateCorrectResult());
-}
-
-function renderInccorectResult() {
-  $('main').html(generateIncorrectResult());
-}
-
-function renderFinalresults() {
-  $('main').html(generateFinalResults());
-}
-
-// This function conditionally replaces the contents of the <main> tag based on the state of the store
-function renderQuiz() {
   if (store.quizStarted) {
     if (store.currentQuestion === store.questions.length) {
-      return renderFinalresults();
+     return generateFinalResults();
     }
-    renderRiddles();
+    generateRiddle(currentQuestion);
+    // checkAnswerSubmit();
+    if (checkAnswerSubmit()) {
+      
+      // console.log("That is correct!")
+      store.score++
+      generateCorrectResult();
+    } else {
+      // console.log("WRONG!")
+      generateIncorrectResult();
+    }
   } else {
-    renderIntro();
+    generateIntroHtmlText();
   }
+
 }
+
 /*********************************************/
 /********** EVENT HANDLER FUNCTIONS **********/
 /*********************************************/
@@ -204,25 +201,22 @@ function handleQuizBeginsSubmit() {
   $('.intro-form').on('submit', e => {
     e.preventDefault();
     startQuiz();
-    renderQuiz();
+    render();
   })
 }
 
 // TODO: This will likely need to be changed to anctual next button after selection your answer
 function checkAnswerSubmit() {
+  let correct = false;
   $('main').on('click', '.answer-buttons', e => {
     e.preventDefault();
-    let correctAnswer = store.questions[store.currentQuestion].correctAnswer;
 
-    if (correctAnswer === e.currentTarget.innerHTML) {
-      // console.log("That is correct!")
-      store.score++
-      renderCorrectResult();
-    } else {
-      // console.log("WRONG!")
-      renderInccorectResult();
-    }
-    console.log(correctAnswer);
+    let correctAnswer = store.questions[store.currentQuestion].correctAnswer;
+    correct = correctAnswer === e.currentTarget.innerHTML
+
+    console.log(correct);
+
+    return correct;
   })
 }
 
@@ -230,16 +224,16 @@ function handleNextQuestonSubmit() {
   $('main').on('click', '.next-button', e => {
     e.preventDefault();
     store.currentQuestion++
-    renderQuiz();
+    render();
   })
 }
 
 
 // launch all functions after page loads
 function handleQuiz() {
-  renderQuiz();
+  render();
   handleQuizBeginsSubmit();
-  checkAnswerSubmit();
+  // checkAnswerSubmit();
   handleNextQuestonSubmit();
 }
 
