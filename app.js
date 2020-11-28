@@ -1,6 +1,3 @@
-/**
- * Example store structure
- */
 const store = {
   // 5 or more questions are required
   questions: [
@@ -63,7 +60,8 @@ const store = {
   quizStarted: false,
   questionNumber: 0,
   score: 0,
-  currentQuestion: 0
+  currentQuestion: 0,
+  attempts: 0
 };
 /**
  * 
@@ -102,7 +100,6 @@ function generateIntroHtmlText() {
 // A function render all the other quiz pages (include argument)
 function generateRiddle(currentQuestion) {
   return $('main').html(
-  // console.log(currentQuestion);
   `
   <div class="question-container">
     <div class="current-container">
@@ -128,36 +125,39 @@ function generateAnswers(currentQuesion) {
 }
 
 function generateCorrectResult() {
-  return  `
+  return $('main').html(
+    `
   <div class="answer">Correct! The answer was: <strong>${store.questions[store.currentQuestion].correctAnswer}</strong>
   <img src="${store.questions[store.currentQuestion].correctImg}" alt="Image of ${store.questions[store.currentQuestion].correctAnswer}" width="500" height="500">
   </div>
   <form class="answers-form">
       <button class="next-button">Next</button>
   </form>
-  `;
+  `
+  )
 }
 
 function generateIncorrectResult() {
-  return  `
+  return $('main').html(  `
   <div class="answer">Sorry! The correct answer was: <strong>${store.questions[store.currentQuestion].correctAnswer}</strong>
   <img src="${store.questions[store.currentQuestion].correctImg}" alt="Image of ${store.questions[store.currentQuestion].correctAnswer}" width="500" height="500">
   </div>
   <form class="answers-form">
       <button class="next-button">Next</button>
   </form>
-  `;
+  `
+  )
 }
 
 function generateFinalResults() {
-  return  `
+  return $('main').html(  `
   <div class="final-results">You scored ${store.score} out of ${store.questions.length}</div>
   <form class="answer-form">
       <button class="reset-button">Restart Quiz?</button>
   </form>
-  `;
+  `
+  )
 }
-
 /****************************************/
 /********** RENDER FUNCTION(S) **********/
 /****************************************/
@@ -165,30 +165,32 @@ function startQuiz() {
   store.quizStarted = true;
 }
 
-
-// NEED TO MAKE A SINGLE RENDER FUNCTION
-function render() {
-  let currentQuestion = store.questions[store.currentQuestion]
-
+function render(selection) {
   if (store.quizStarted) {
-    if (store.currentQuestion === store.questions.length) {
+    if (store.attempts === store.questions.length) {
      return generateFinalResults();
     }
+    let currentQuestion = store.questions[store.currentQuestion]
+    let correctAnswer = currentQuestion.correctAnswer;
+
     generateRiddle(currentQuestion);
-    // checkAnswerSubmit();
-    if (checkAnswerSubmit()) {
-      
-      // console.log("That is correct!")
-      store.score++
-      generateCorrectResult();
+
+    if (!selection) {
+      // console.log("Please make a selection");
     } else {
-      // console.log("WRONG!")
-      generateIncorrectResult();
+      if (selection === correctAnswer) {
+        // console.log("That is correct!")
+        store.score++
+        generateCorrectResult();
+      } else {
+        // console.log("WRONG!")
+        generateIncorrectResult();
+      }
+      store.attempts++
     }
   } else {
     generateIntroHtmlText();
   }
-
 }
 
 /*********************************************/
@@ -197,7 +199,7 @@ function render() {
 // These functions handle events (submit, click, etc)
 
 function handleQuizBeginsSubmit() {
-  // when the user clicks the button this is where we handle the beging
+  // when the user clicks the button this is where we handle the beggining
   $('.intro-form').on('submit', e => {
     e.preventDefault();
     startQuiz();
@@ -205,18 +207,11 @@ function handleQuizBeginsSubmit() {
   })
 }
 
-// TODO: This will likely need to be changed to anctual next button after selection your answer
 function checkAnswerSubmit() {
-  let correct = false;
   $('main').on('click', '.answer-buttons', e => {
     e.preventDefault();
 
-    let correctAnswer = store.questions[store.currentQuestion].correctAnswer;
-    correct = correctAnswer === e.currentTarget.innerHTML
-
-    console.log(correct);
-
-    return correct;
+    render(e.currentTarget.innerHTML);
   })
 }
 
@@ -228,12 +223,11 @@ function handleNextQuestonSubmit() {
   })
 }
 
-
 // launch all functions after page loads
 function handleQuiz() {
   render();
   handleQuizBeginsSubmit();
-  // checkAnswerSubmit();
+  checkAnswerSubmit();
   handleNextQuestonSubmit();
 }
 
